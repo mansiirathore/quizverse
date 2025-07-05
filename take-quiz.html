@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Take Quiz</title>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            max-width: 700px;
+            margin: auto;
+            background-color: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .option {
+            margin: 10px 0;
+            background-color: #334155;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .correct {
+            background-color: #22c55e !important;
+        }
+
+        .wrong {
+            background-color: #ef4444 !important;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            margin: 10px;
+        }
+
+        #timerDisplay {
+            font-weight: bold;
+            margin: 10px 0;
+            color: #facc15;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="quiz-container" id="quizContainer">
+        <h2 id="quizTitle">Quiz</h2>
+        <div id="questionBlock"></div>
+        <div id="timerDisplay"></div>
+    </div>
+
+    <script>
+        const quiz = JSON.parse(localStorage.getItem('createdQuiz'));
+        let currentIndex = 0;
+        let score = 0;
+        const userAnswers = [];
+        const timeTaken = [];
+        let timeLeft = 0;
+        let timerInterval;
+
+        document.getElementById('quizTitle').textContent = quiz.title;
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            const q = quiz.questions[currentIndex];
+            const block = document.getElementById('questionBlock');
+
+            const optionsHTML = Object.entries(q.options).map(([key, val]) =>
+                `<div class="option" onclick="selectAnswer('${key}')">${val}</div>`).join('');
+
+            block.innerHTML = `
+        <h3>Q${currentIndex + 1}: ${q.question}</h3>
+        ${optionsHTML}
+      `;
+
+            // Start Timer if Timed Quiz
+            if (quiz.type === 'Timed' && q.time) {
+                timeLeft = q.time;
+                updateTimerDisplay();
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        timeTaken.push(q.time);
+                        userAnswers.push(null);
+                        currentIndex++;
+                        if (currentIndex < quiz.questions.length) {
+                            loadQuestion();
+                        } else {
+                            showResults();
+                        }
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('timerDisplay').textContent = '';
+            }
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timerDisplay').textContent = `⏱ Time left: ${timeLeft}s`;
+        }
+
+        function selectAnswer(selected) {
+            clearInterval(timerInterval);
+            const q = quiz.questions[currentIndex];
+            if (selected === q.correctAnswer) score++;
+            userAnswers.push(selected);
+            if (quiz.type === 'Timed') {
+                timeTaken.push(q.time - timeLeft);
+            }
+
+            currentIndex++;
+            if (currentIndex < quiz.questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+            const block = document.getElementById('questionBlock');
+            let html = `<div class="score">🎉 You scored ${score} / ${quiz.questions.length}</div><hr><h3>Answers:</h3>`;
+
+            quiz.questions.forEach((q, i) => {
+                html += `<p><strong>Q${i + 1}:</strong> ${q.question}</p>`;
+                Object.entries(q.options).forEach(([key, val]) => {
+                    let cls = '';
+                    if (key === q.correctAnswer) cls = 'correct';
+                    else if (key === userAnswers[i] && key !== q.correctAnswer) cls = 'wrong';
+                    html += `<div class="option ${cls}">${val}</div>`;
+                });
+
+                if (quiz.type === 'Timed') {
+                    html += `<p style="color:#facc15;">⏱ Time taken: ${timeTaken[i]}s</p>`;
+                }
+
+                html += `<hr>`;
+            });
+
+            html += `
+        <button class="btn" onclick="location.href='quiz-list.html'">📚 Back to Quiz List</button>
+        <button class="btn" onclick="location.href='quiz-creator.html'">🛠️ Create Another Quiz</button>
+        <button class="btn" onclick="location.href='index.html'">🏠 Go to Home</button>
+      `;
+
+            block.innerHTML = html;
+            document.getElementById('timerDisplay').textContent = '';
+        }
+
+        loadQuestion();
+    </script>
+</body>
+
+</html>

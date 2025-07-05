@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizVerse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            margin: 10px 0 30px;
+            color: #dcdcdc;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-create {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .btn-create:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn-take {
+            background-color: white;
+            color: #1e3c72;
+        }
+
+        .btn-take:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+        }
+
+        .quote-box {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.07);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>QuizVerse</h1>
+        <p class="tagline">🚀 Create an awesome quiz in minutes!</p>
+        <div class="buttons">
+            <a href="quiz-creator.html">
+                <button class="btn btn-create"><i class="fas fa-plus"></i> Create a Quiz</button>
+            </a>
+            <a href="quiz-list.html">
+                <button class="btn btn-take"><i class="fas fa-clipboard-check"></i> Take a Quiz</button>
+            </a>
+            <!-- <button class="btn btn-create"><i class="fas fa-plus"></i> Create a Quiz</button>
+            <button class="btn btn-take"><i class="fas fa-clipboard-check"></i> Take a Quiz</button> -->
+        </div>
+
+        <div class="quote-box">
+            <p>"The beautiful thing about learning is that nobody can take it away from you." – B.B. King</p>
+        </div>
+    </div>
+</body>
+
+</html>

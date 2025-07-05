@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Quiz Creator</title>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #f8fafc;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        .question {
+            background: #334155;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .option-pair {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 18px;
+            margin-top: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        .save-btn {
+            background-color: #3b82f6;
+            color: white;
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🛠️ Quiz Creator</h1>
+
+        <label for="quizTitle">Quiz Title</label>
+        <input id="quizTitle" placeholder="e.g., JavaScript Basics" />
+
+        <label for="quizType">Quiz Type</label>
+        <select id="quizType" onchange="updateTypeUI()">
+            <option value="">Select Type</option>
+            <option value="MCQ">📝 Multiple Choice</option>
+            <option value="TF">✅ True / False</option>
+            <option value="Timed">⌛ Timed Quiz</option>
+        </select>
+
+        <div id="questions"></div>
+
+        <button class="btn add-btn" onclick="addQuestion()">➕ Add Question</button>
+        <button class="btn save-btn" onclick="saveQuiz()">💾 Save Quiz</button>
+    </div>
+
+    <script>
+        let questions = [];
+        let editing = localStorage.getItem("editQuizIndex");
+        let existing = JSON.parse(localStorage.getItem("quizzes") || "[]");
+
+        if (editing !== null) {
+            let quiz = existing[editing];
+            document.getElementById("quizTitle").value = quiz.title;
+            document.getElementById("quizType").value = quiz.type;
+            questions = quiz.questions;
+            localStorage.removeItem("editQuizIndex");
+        }
+
+        function updateTypeUI() {
+            renderQuestions();
+        }
+
+        function addQuestion() {
+            const type = document.getElementById("quizType").value;
+            const newQ = {
+                question: "",
+                options: type === "TF" ? { A: "True", B: "False" } : { A: "", B: "", C: "", D: "" },
+                correctAnswer: "",
+                marks: 1,
+                time: type === "Timed" ? 30 : null
+            };
+            questions.push(newQ);
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById("questions");
+            const type = document.getElementById("quizType").value;
+            container.innerHTML = "";
+
+            questions.forEach((q, i) => {
+                const optHTML = type === "TF"
+                    ? `
+            <label>Correct Answer</label>
+            <select onchange="questions[${i}].correctAnswer = this.value">
+              <option value="">Select</option>
+              <option value="A" ${q.correctAnswer === "A" ? "selected" : ""}>True</option>
+              <option value="B" ${q.correctAnswer === "B" ? "selected" : ""}>False</option>
+            </select>`
+                    : `
+            ${["A", "B", "C", "D"].map(k => `
+              <label>Option ${k}</label>
+              <input value="${q.options[k] || ""}" oninput="questions[${i}].options['${k}'] = this.value" />
+            `).join("")}
+            <label>Correct Answer</label>
+            <select onchange="questions[${i}].correctAnswer = this.value">
+              <option value="">Select</option>
+              ${["A", "B", "C", "D"].map(k =>
+                        `<option value="${k}" ${q.correctAnswer === k ? "selected" : ""}>${k}</option>`
+                    ).join("")}
+            </select>`;
+
+                const timerHTML = type === "Timed"
+                    ? `<label>⏱ Time (seconds)</label><input type="number" value="${q.time || 30}" oninput="questions[${i}].time = parseInt(this.value)" />`
+                    : "";
+
+                container.innerHTML += `
+          <div class="question">
+            <label>Question ${i + 1}</label>
+            <input value="${q.question}" oninput="questions[${i}].question = this.value" />
+            ${optHTML}
+            <label>Marks</label>
+            <input type="number" value="${q.marks}" oninput="questions[${i}].marks = parseInt(this.value)" />
+            ${timerHTML}
+          </div>`;
+            });
+        }
+
+        function saveQuiz() {
+            const title = document.getElementById("quizTitle").value;
+            const type = document.getElementById("quizType").value;
+            if (!title || !type || questions.length === 0) {
+                alert("Fill all fields and add at least one question.");
+                return;
+            }
+
+            const newQuiz = { title, type, questions };
+            existing = JSON.parse(localStorage.getItem("quizzes") || "[]");
+
+            if (editing !== null) {
+                existing[editing] = newQuiz;
+            } else {
+                existing.push(newQuiz);
+            }
+
+            localStorage.setItem("quizzes", JSON.stringify(existing));
+            alert("✅ Quiz Saved!");
+            window.location.href = "quiz-list.html";
+        }
+
+        renderQuestions();
+    </script>
+</body>
+
+</html>
